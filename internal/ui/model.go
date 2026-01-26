@@ -3,7 +3,9 @@ package ui
 import (
 	"fmt"
 	"strings"
+	"time"
 
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,12 +22,19 @@ type Model struct {
 	choices  []string
 	cursor   int
 	selected string
+	loading  bool
+	spinner  spinner.Model
 }
 
 func InitialModel() Model {
+	s := spinner.New()
+	s.Spinner = spinner.Dot
+	s.Style = lipgloss.NewStyle().Foreground(MainColor)
+
 	return Model{
 		state:   menuView,
 		choices: []string{"NFL Games", "NBA Games", "NCAA Basketball", "Exit"},
+		spinner: s,
 	}
 }
 
@@ -53,19 +62,43 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if m.selected == "Exit" {
 					return m, tea.Quit
 				}
-				m.state = resultView
-			} else {
-				m.state = menuView
+				m.loading = true
+
+				return m, tea.Batch(m.spinner.Tick, m.simulateFetch())
 			}
+			m.state = menuView
+			m.loading = false
 		}
+	case string:
+		m.loading = false
+		m.state = resultView
+		return m, nil
+
+	case spinner.TickMsg:
+		var cmd tea.Cmd
+		m.spinner, cmd = m.spinner.Update(msg)
+		return m, cmd
 	}
 	return m, nil
 }
 
+func (m Model) simulateFetch() tea.Cmd {
+	return func() tea.Msg {
+		time.Sleep(3 * time.Second)
+		return "Done"
+	}
+}
+
 func (m Model) View() string {
 	var body string
-
-	if m.state == resultView {
+	if m.loading {
+		body = fmt.Sprintf(
+			"\n %s  Fetching %s data...\n\n%s",
+			m.spinner.View(),
+			m.selected,
+			lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render("Please wait..."),
+		)
+	} else if m.state == resultView {
 		// The "Message" Screen
 		body = fmt.Sprintf(
 			"%s\n\nReturning data for: %s\n\n%s",
