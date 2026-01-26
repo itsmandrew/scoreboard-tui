@@ -76,7 +76,7 @@ func (m Model) View() string {
 	} else {
 		// The "Menu" Screen
 		var b strings.Builder
-		b.WriteString(TitleStyle.Render(" TICKER MAIN MENU ") + "\n\n")
+		b.WriteString(TitleStyle.Render(" SCOREBOARD CLI MENU ") + "\n\n")
 
 		for i, choice := range m.choices {
 			cursor := " "
