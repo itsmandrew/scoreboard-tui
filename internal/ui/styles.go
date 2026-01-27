@@ -7,8 +7,8 @@ var (
 	WindowStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(MainColor).
-			Padding(1, 4).
-			Margin(1)
+			Padding(1, 8).
+			Margin(2)
 
 	TitleStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#FFFDF5")).
