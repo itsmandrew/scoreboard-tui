@@ -24,9 +24,10 @@ type Model struct {
 	selected string
 	loading  bool
 	spinner  spinner.Model
+	apiKey   string
 }
 
-func InitialModel() Model {
+func InitialModel(apiKey string) Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(MainColor)
@@ -35,6 +36,7 @@ func InitialModel() Model {
 		state:   menuView,
 		choices: []string{"NFL Games", "NBA Games", "NCAA Basketball", "Exit"},
 		spinner: s,
+		apiKey:  apiKey,
 	}
 }
 
@@ -65,7 +67,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		var cmd tea.Cmd
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
+
+	case nbaMsg:
+		m.loading = false
+		m.state = resultView
+		return m, nil
 	}
+
 	return m, nil
 }
 
@@ -92,7 +100,11 @@ func (m *Model) handleKeyInput(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		if m.selected == "Exit" {
 			return m, tea.Quit
 		}
+
 		m.loading = true
+		if m.selected == "NBA Games" {
+			return m, tea.Batch(m.spinner.Tick, FetchNBACmd(m.apiKey))
+		}
 		return m, tea.Batch(m.spinner.Tick, m.simulateFetch())
 	}
 
