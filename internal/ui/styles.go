@@ -9,6 +9,9 @@ var (
 	ErrorColor  = lipgloss.Color("#FF5555")
 	White       = lipgloss.Color("#FFFDF5")
 
+	// Highlight color
+	HighlightColor = lipgloss.Color("#D4AF87") // Warm beige for selections
+
 	// League-specific colors
 	NBAColor  = lipgloss.Color("#FF6B35") // Orange
 	NFLColor  = lipgloss.Color("#4ECDC4") // Teal
@@ -17,8 +20,8 @@ var (
 
 	// Base Containers
 	WindowStyle = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(MainColor).
+			Border(lipgloss.ThickBorder()).
+			BorderForeground(SubtleColor).
 			Padding(1, 4).
 			Margin(2)
 
@@ -68,7 +71,7 @@ var (
 
 	LogoBoxSelectedStyle = lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder()).
-				BorderForeground(MainColor).
+				BorderForeground(HighlightColor).
 				Padding(0, 1).
 				Width(7).
 				Height(2).
@@ -83,6 +86,6 @@ var (
 	MenuLabelSelectedStyle = lipgloss.NewStyle().
 				Width(12).
 				Align(lipgloss.Center).
-				Foreground(MainColor).
+				Foreground(HighlightColor).
 				Bold(true)
 )

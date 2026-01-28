@@ -42,7 +42,7 @@ func (m Model) menuView() string {
 		if m.cursor == i {
 			boxStyle = LogoBoxSelectedStyle
 			labelStyle = MenuLabelSelectedStyle
-			logoColor = MainColor // Purple when selected
+			// Keep original logo color when selected
 		}
 
 		// Build logo box content with colored symbols
