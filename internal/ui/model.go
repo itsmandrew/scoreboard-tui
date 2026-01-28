@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/itsmandrew/scoreboard-cli/internal/sports"
 )
 
 type sessionState int
@@ -25,6 +26,8 @@ type Model struct {
 	loading  bool
 	spinner  spinner.Model
 	apiKey   string
+	nbaGames []sports.Game
+	err      error
 }
 
 func InitialModel(apiKey string) Model {
@@ -71,6 +74,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case nbaMsg:
 		m.loading = false
 		m.state = resultView
+		m.nbaGames = msg
+		return m, nil
+
+	case errMsg:
+		m.loading = false
+		m.err = msg
 		return m, nil
 	}
 
@@ -118,6 +127,31 @@ func (m Model) simulateFetch() tea.Cmd {
 	}
 }
 
+func (m Model) renderNBAGames() string {
+	if len(m.nbaGames) == 0 {
+		return "No games scheduled for today"
+	}
+
+	var b strings.Builder
+	b.WriteString(fmt.Sprintf("NBA Scores - %s\n\n", time.Now().Format("Jan 02, 2006")))
+
+	for _, game := range m.nbaGames {
+
+		homeStr := fmt.Sprintf("%s %d", game.HomeTeam.Abbreviation, game.HomeTeamScore)
+		visitorStr := fmt.Sprintf("%s %d", game.VisitorTeam.Abbreviation, game.VisitorTeamScore)
+
+		status := sports.FormatStatus(game.Status)
+
+		row := fmt.Sprintf("%s vs %s — %s\n",
+			lipgloss.NewStyle().Width(10).Render(homeStr),
+			lipgloss.NewStyle().Width(10).Render(visitorStr),
+			lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render(status),
+		)
+		b.WriteString(row)
+	}
+	return b.String()
+}
+
 func (m Model) View() string {
 	var body string
 	if m.loading {
@@ -129,12 +163,20 @@ func (m Model) View() string {
 		)
 	} else if m.state == resultView {
 		// The "Message" Screen
+		content := ""
+		if m.selected == "NBA Games" {
+			content = m.renderNBAGames()
+		} else {
+			content = fmt.Sprintf("Returning data for: %s", m.selected)
+		}
+
 		body = fmt.Sprintf(
-			"%s\n\nReturning data for: %s\n\n%s",
-			TitleStyle.Render(" SYSTEM MESSAGE "),
-			m.selected,
-			"Press Enter to go back...",
+			"%s\n\n%s\n\n%s",
+			TitleStyle.Render(" SCOREBOARD "),
+			content,
+			lipgloss.NewStyle().Italic(true).Render("Press Enter to go back..."),
 		)
+
 	} else {
 		// The "Menu" Screen
 		var b strings.Builder
