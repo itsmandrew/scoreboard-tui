@@ -6,7 +6,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/itsmandrew/scoreboard-cli/internal/ui"
+	"github.com/itsmandrew/scoreboard-tui/internal/ui"
 	"github.com/joho/godotenv"
 )
 

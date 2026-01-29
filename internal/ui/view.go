@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/itsmandrew/scoreboard-cli/internal/sports"
+	"github.com/itsmandrew/scoreboard-tui/internal/sports"
 )
 
 func (m Model) View() string {

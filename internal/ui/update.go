@@ -14,9 +14,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleKeyEvents(msg)
 
 	case spinner.TickMsg:
-		var cmd tea.Cmd
-		m.spinner, cmd = m.spinner.Update(msg)
-		return m, cmd
+
+		if m.loading {
+			var cmd tea.Cmd
+			m.spinner, cmd = m.spinner.Update(msg)
+			return m, cmd
+		}
+		return m, nil
 
 	case nbaMsg:
 		m.loading = false
@@ -43,12 +47,13 @@ func (m Model) handleKeyEvents(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	}
 
+	// Blocks navigating if loading
 	if m.loading {
 		return m, nil
 	}
 
 	if m.state == resultView {
-		if msg.String() == "enter" {
+		if msg.String() == "enter" || msg.String() == "esc" {
 			m.state = menuView
 			m.err = nil
 		}

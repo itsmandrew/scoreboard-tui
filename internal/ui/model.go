@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/itsmandrew/scoreboard-cli/internal/sports"
+	"github.com/itsmandrew/scoreboard-tui/internal/sports"
 )
 
 type sessionState int

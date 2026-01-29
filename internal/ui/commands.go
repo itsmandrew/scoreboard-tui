@@ -2,7 +2,7 @@ package ui
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/itsmandrew/scoreboard-cli/internal/sports"
+	"github.com/itsmandrew/scoreboard-tui/internal/sports"
 )
 
 type (
