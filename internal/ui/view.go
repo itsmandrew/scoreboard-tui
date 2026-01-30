@@ -112,16 +112,20 @@ func (m Model) loadingView() string {
 }
 
 func (m Model) resultView() string {
-	content := ""
+	var title string
+	var content string
+
 	if m.selected == "NBA Games" {
+		title = TitleStyle.Render(fmt.Sprintf(" NBA Scores - %s ", time.Now().Format("Jan 02, 2006")))
 		content = m.renderNBAGamesTable()
 	} else {
+		title = TitleStyle.Render(" SCOREBOARD ")
 		content = fmt.Sprintf("Returning data for: %s", m.selected)
 	}
 
 	return fmt.Sprintf(
 		"%s\n\n%s\n\n%s",
-		TitleStyle.Render(" SCOREBOARD "),
+		title,
 		content,
 		ItalicStyle.Render("(↑/↓ to scroll • Enter to go back)"),
 	)
@@ -142,10 +146,7 @@ func (m Model) renderNBAGamesTable() string {
 		return SubtleStyle.Render("No games scheduled for today")
 	}
 
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf("NBA Scores - %s\n\n", time.Now().Format("Jan 02, 2006")))
-	b.WriteString(m.gamesTable.View())
-	return b.String()
+	return m.gamesTable.View()
 }
 
 // createNBATable builds a scrollable table from NBA game data with custom styling
