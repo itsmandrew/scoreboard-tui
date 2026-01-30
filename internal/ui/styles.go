@@ -51,16 +51,7 @@ var (
 			Italic(true).
 			Foreground(SubtleColor)
 
-	// Scoreboard Layout Styles
-	TeamStyle = lipgloss.NewStyle().
-			Width(12).
-			Bold(true)
-
-	StatusStyle = lipgloss.NewStyle().
-			Foreground(SubtleColor).
-			MarginLeft(2)
-
-	// Logo box styles (smaller squares)
+	// Logo box styles
 	LogoBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(SubtleColor).

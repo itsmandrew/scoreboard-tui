@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/itsmandrew/scoreboard-tui/internal/sports"
 )
@@ -111,18 +112,22 @@ func (m Model) loadingView() string {
 }
 
 func (m Model) resultView() string {
-	content := ""
+	var title string
+	var content string
+
 	if m.selected == "NBA Games" {
-		content = m.renderNBAGames()
+		title = TitleStyle.Render(fmt.Sprintf(" NBA Scores - %s ", time.Now().Format("Jan 02, 2006")))
+		content = m.renderNBAGamesTable()
 	} else {
+		title = TitleStyle.Render(" SCOREBOARD ")
 		content = fmt.Sprintf("Returning data for: %s", m.selected)
 	}
 
 	return fmt.Sprintf(
 		"%s\n\n%s\n\n%s",
-		TitleStyle.Render(" SCOREBOARD "),
+		title,
 		content,
-		ItalicStyle.Render("Press Enter to go back..."),
+		ItalicStyle.Render("(↑/↓ to scroll • Enter to go back)"),
 	)
 }
 
@@ -135,21 +140,56 @@ func (m Model) errorView() string {
 	)
 }
 
-// Format fetched NBA game data into a table-like string
-func (m Model) renderNBAGames() string {
+// renderNBAGamesTable displays NBA games in a scrollable table format
+func (m Model) renderNBAGamesTable() string {
 	if len(m.nbaGames) == 0 {
 		return SubtleStyle.Render("No games scheduled for today")
 	}
 
-	var b strings.Builder
-	b.WriteString(fmt.Sprintf("NBA Scores - %s\n\n", time.Now().Format("Jan 02, 2006")))
+	return m.gamesTable.View()
+}
 
-	for _, game := range m.nbaGames {
-		home := TeamStyle.Render(fmt.Sprintf("%s %d", game.HomeTeam.Abbreviation, game.HomeTeamScore))
-		away := TeamStyle.Render(fmt.Sprintf("%s %d", game.VisitorTeam.Abbreviation, game.VisitorTeamScore))
-		status := StatusStyle.Render(sports.FormatStatus(game.Status))
-
-		b.WriteString(fmt.Sprintf("%s vs %s — %s\n", home, away, status))
+// createNBATable builds a scrollable table from NBA game data with custom styling
+func createNBATable(games []sports.Game) table.Model {
+	// Define table columns
+	columns := []table.Column{
+		{Title: "Home", Width: 15},
+		{Title: "Away", Width: 15},
+		{Title: "Score", Width: 15},
+		{Title: "Status", Width: 15},
 	}
-	return b.String()
+
+	// Build rows from game data
+	var rows []table.Row
+	for _, game := range games {
+		rows = append(rows, table.Row{
+			game.HomeTeam.Abbreviation,
+			game.VisitorTeam.Abbreviation,
+			fmt.Sprintf("(%d - %d)", game.HomeTeamScore, game.VisitorTeamScore),
+			sports.FormatStatus(game.Status),
+		})
+	}
+
+	// Create table with focused state and fixed height
+	t := table.New(
+		table.WithColumns(columns),
+		table.WithRows(rows),
+		table.WithFocused(true),
+		table.WithHeight(10),
+	)
+
+	// Apply custom styling for beige row highlighting
+	s := table.DefaultStyles()
+	s.Header = s.Header.
+		BorderStyle(lipgloss.NormalBorder()).
+		BorderForeground(lipgloss.Color("241")).
+		BorderBottom(true).
+		Bold(true)
+	s.Selected = s.Selected.
+		Foreground(lipgloss.Color("16")). // Black text for contrast
+		Background(HighlightColor).       // Beige background for selected row
+		Bold(true)
+	t.SetStyles(s)
+
+	return t
 }

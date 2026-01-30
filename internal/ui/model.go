@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/charmbracelet/bubbles/spinner"
+	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/itsmandrew/scoreboard-tui/internal/sports"
@@ -55,26 +56,26 @@ var leagueLogos = []LeagueLogo{
 	},
 }
 
+// Model holds the application state for the scoreboard TUI
 type Model struct {
-	state    sessionState
-	choices  []string
-	cursor   int
-	selected string
-	loading  bool
-	spinner  spinner.Model
-	apiKey   string
-	nbaGames []sports.Game
-	err      error
+	state      sessionState  // Current view state (menu or result)
+	cursor     int           // Menu cursor position
+	selected   string        // Currently selected league
+	loading    bool          // Loading state indicator
+	spinner    spinner.Model // Loading spinner component
+	apiKey     string        // API key for sports data
+	nbaGames   []sports.Game // Fetched NBA game data
+	gamesTable table.Model   // Scrollable table for displaying games
+	err        error         // Error state
 }
 
 func InitialModel(apiKey string) Model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
-	s.Style = lipgloss.NewStyle().Foreground(MainColor)
+	s.Style = lipgloss.NewStyle().Foreground(HighlightColor)
 
 	return Model{
 		state:   menuView,
-		choices: []string{"NBA Games", "NFL Games", "NCAA Basketball", "Exit"},
 		spinner: s,
 		apiKey:  apiKey,
 	}
